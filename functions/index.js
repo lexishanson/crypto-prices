@@ -9,7 +9,8 @@ admin.initializeApp(functions.config().firebase);
 global.fetch = require('node-fetch');
 
 // API.AI Intent names
-const GET_PRICE_INTENT = 'get-price';
+const WELCOME_INTENT = 'input.welcome';
+const GET_PRICE_INTENT = 'get.price';
 const QUIT_INTENT = 'quit';
 
 // Contexts
@@ -47,43 +48,53 @@ const coinFullNames = {
 };
 
 exports.cryptoCurrencyPrices = functions.https.onRequest((request, response) => {
-  console.log('headers: ' + JSON.stringify(request.headers));
-  console.log('body: ' + JSON.stringify(request.body));
 
-  const assistant = new Assistant({request: request, response: response});
-
-  let actionMap = new Map();
-  actionMap.set(GET_PRICE_INTENT, getPrice);
-  assistant.handleRequest(actionMap);
-
-  function fetchJSON(url) {
+  const fetchJSON = (url) => {
     return fetch(url).then(res => res.json()).then(body => {
       if (body.Response === 'Error') {
         throw body.Message;
       }
       return body;
     });
-  }
+  };
 
-  function price(fromCoin, toCoin, options) {
+  const price = (fromCoin, toCoin, options) => {
     options = options || {};
+    console.log('arguments are: ', arguments);
     const baseUrl = 'https://min-api.cryptocompare.com/data/';
     let url = `${baseUrl}price?fsym=${fromCoin}&tsyms=${toCoin}`;
-    //  if (options.exchanges) url += `&e=${options.exchanges}`;
-    //  if (options.tryConversion === false) url += '&tryConversion=false';
     return fetchJSON(url);
-  }
+  };
 
-  function getPrice(assistant) {
+  const generateMessageFunction = (coinFullNames, fromCoin, toCoin) => (toCoinPrice) => {
+    return (`The current price of ${coinFullNames[fromCoin]} is ${toCoinPrice}
+       ${coinFullNames[toCoin]}`
+     );
+  };
+
+  const getPrice = (assistant) => {
     let fromCoin = assistant.getArgument(CRYPTO_COIN);
     let toCoin = assistant.getArgument(CURRENCY_NAME) ||
     assistant.getArgument(CRYPTO_COIN2) ||
     'USD';
+    if (fromCoin === null) {
+      assistant.ask('Hi, which cryptocoin would you like the price for?');
+    } else {
+      let getPrice = price(fromCoin, toCoin)
+      .then(body => body[toCoin])
+      .then(generateMessageFunction(coinFullNames, fromCoin, toCoin))
+      .then(message => assistant.tell(message))
+      .catch(console.error);
+    }
+  };
 
-    let getPrice = price(fromCoin, toCoin)
-    .then((body) => body[toCoin])
-    .then(toCoinPrice => {
-      return `The current price of ${coinFullNames[fromCoin]} is $${toCoinPrice} ${coinFullNames[toCoin]}`;})
-    .then(message => assistant.tell(message)).catch(console.error);
-  }
+  console.log('headers: ' + JSON.stringify(request.headers));
+
+  const assistant = new Assistant({request: request, response: response});
+
+  let actionMap = new Map();
+  actionMap.set(WELCOME_INTENT, getPrice);
+  actionMap.set(GET_PRICE_INTENT, getPrice);
+  assistant.handleRequest(actionMap);
+
 });
