@@ -57,7 +57,6 @@ const cryptoPrices = (request, response) => {
     'USD';
 
     let toCoin = shortName(coinNameLongOrShort.toUpperCase());
-    console.log('tocoin from tocoinlf', toCoin);
 
     if (fromCoin === null) {
       assistant.ask('Hi, which cryptocoin would you like the price for?');
@@ -65,7 +64,7 @@ const cryptoPrices = (request, response) => {
       let getPriceRequest =
       pricePromise(fromCoin, toCoin)
       .then(getToCoinPriceFromBody(toCoin))
-      // .then(formatToCoinPrice(toCoinPrice))
+      .then(formatToCoinPrice(toCoinPrice))
       .then(generateMessageFn(fromCoin, toCoin))
       .then(respondWithMessage)
       .catch(console.error);
@@ -97,15 +96,15 @@ const cryptoPrices = (request, response) => {
     });
   };
 
-  const getToPriceCoinFromBody = toCoin => body => body[toCoin];
+  const getToCoinPriceFromBody = toCoin => body => body[toCoin];
 
-  // const formatToCoinPrice = toCoinPrice => {
-  //   if (toCoinPrice && toCoinPrice < 1) {
-  //     return toCoinPrice.toFixed(4);
-  //   }
-  //
-  //   return toCoinPrice.toFixed(2);
-  // };
+  const formatToCoinPrice = toCoinPrice => {
+    if (toCoinPrice < 1) {
+      return toCoinPrice.toFixed(4);
+    }
+
+    return toCoinPrice.toFixed(2);
+  };
 
   const generateMessageFn = (fromCoin, toCoin) => (toCoinPrice) => {
     if (toCoin === 'USD') {
