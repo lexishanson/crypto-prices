@@ -37,6 +37,7 @@ const coinFullNames = {
   STRAT: 'Stratis',
   XMR: 'Monero',
   XRP: 'Ripple',
+
   // traditional currencies
   AUD: 'Australian Dollars',
   CAD: 'Canadian Dollars',
@@ -51,12 +52,12 @@ const coinFullNames = {
 const cryptoPrices = (request, response) => {
 
   const getPrice = (assistant) => {
-    let fromCoin = assistant.getArgument(CRYPTO_COIN);
-    let coinNameLongOrShort = assistant.getArgument(CURRENCY_NAME) ||
+    const fromCoin = assistant.getArgument(CRYPTO_COIN);
+    const coinNameLongOrShort = assistant.getArgument(CURRENCY_NAME) ||
     assistant.getArgument(CRYPTO_COIN2) ||
     'USD';
 
-    let toCoin = shortName(coinNameLongOrShort.toUpperCase());
+    const toCoin = shortName(coinNameLongOrShort.toUpperCase());
 
     if (fromCoin === null) {
       assistant.ask('Hi, which cryptocoin would you like the price for?');
@@ -64,7 +65,7 @@ const cryptoPrices = (request, response) => {
       let getPriceRequest =
       pricePromise(fromCoin, toCoin)
       .then(getToCoinPriceFromBody(toCoin))
-      .then(formatToCoinPrice(toCoinPrice))
+      .then(formatToCoinPrice)
       .then(generateMessageFn(fromCoin, toCoin))
       .then(respondWithMessage)
       .catch(console.error);
@@ -76,7 +77,10 @@ const cryptoPrices = (request, response) => {
     longName: coinFullNames[short].toUpperCase(),
   }));
 
-  const shortName = (name) => coins.find((coin) => coin.longName === name || coin.shortName === name).shortName;
+  const shortName = name =>
+    coins.find((coin) =>
+      coin.longName === name ||
+      coin.shortName === name).shortName;
 
   const pricePromise = (fromCoin, toCoin) => {
     console.log('arguments are: ', fromCoin, toCoin);
@@ -85,8 +89,8 @@ const cryptoPrices = (request, response) => {
     return fetchJSON(url);
   };
 
-  const fetchJSON = url => {
-    return fetch(url).then(res => res.json()).then(body => {
+  const fetchJSON = url =>
+    fetch(url).then(res => res.json()).then(body => {
       if (body.Response === 'Error') {
         throw body.Message;
       }
@@ -94,7 +98,6 @@ const cryptoPrices = (request, response) => {
       console.log('fetchJSON triggered');
       return body;
     });
-  };
 
   const getToCoinPriceFromBody = toCoin => body => body[toCoin];
 
@@ -108,8 +111,7 @@ const cryptoPrices = (request, response) => {
 
   const generateMessageFn = (fromCoin, toCoin) => (toCoinPrice) => {
     if (toCoin === 'USD') {
-      return (`The current price of ${coinFullNames[fromCoin]} is $${toCoinPrice}.`
-       );
+      return (`The current price of ${coinFullNames[fromCoin]} is $${toCoinPrice}.`);
     }
 
     return (`The current price of ${coinFullNames[fromCoin]} is ${toCoinPrice}
@@ -122,7 +124,6 @@ const cryptoPrices = (request, response) => {
   const assistant = new Assistant({ request: request, response: response });
 
   let actionMap = new Map();
-  actionMap.set(WELCOME_INTENT, getPrice);
   actionMap.set(GET_PRICE_INTENT, getPrice);
   assistant.handleRequest(actionMap);
 
