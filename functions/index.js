@@ -1,56 +1,40 @@
-"use strict";
+'use strict';
 
-process.env.DEBUG = "actions-on-google:*";
+process.env.DEBUG = 'actions-on-google:*';
 
-const Assistant = require("actions-on-google").ApiAiAssistant;
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-global.fetch = require("node-fetch");
+const Assistant = require('actions-on-google').ApiAiAssistant;
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const coinObject = require('./coin-object');
+global.fetch = require('node-fetch');
 
 admin.initializeApp(functions.config().firebase);
-
 // API.AI Intent names
-const GET_PRICE_INTENT = "get.price";
-const QUIT_INTENT = "quit";
+const GET_PRICE_INTENT = 'get.price';
+const QUIT_INTENT = 'quit';
 
 // Contexts
-const WELCOME_CONTEXT = "welcome";
-const GET_PRICE_CONTEXT = "get-price";
+const WELCOME_CONTEXT = 'welcome';
+const GET_PRICE_CONTEXT = 'get-price';
 
 // Context Parameters
-const CRYPTO_COIN = "crypto-coin";
-const CRYPTO_COIN2 = "crypto-coin2";
-const CURRENCY_NAME = "currency-name";
+const CRYPTO_COIN = 'crypto-coin';
+const CRYPTO_COIN2 = 'crypto-coin2';
+const CURRENCY_NAME = 'currency-name';
 
-const coinFullNames = {
-  // cryptocurrencies
-  ADA: "Cardano",
-  BTC: "Bitcoin",
-  BCH: "Bitcoin Cash",
-  DASH: "Digital Cash",
-  DOGE: "Dogecoin",
-  ETC: "Ethereum Classic",
-  ETH: "Ethereum",
-  GNT: "Golem",
-  IOT: "Iota",
-  LTC: "Litecoin",
-  NEO: "NEO",
-  QTUM: "QTUM",
-  SC: "Siacoin",
-  STRAT: "Stratis",
-  XMR: "Monero",
-  XRP: "Ripple",
+const coinFullNames = Object.assign(coinObject.coinObject, {
+  AUD: 'Australian Dollars',
+  CAD: 'Canadian Dollars',
+  CNY: 'Yuan',
+  EUR: 'Euros',
+  GBP: 'British Pounds',
+  INR: 'Indian Rupees',
+  JPY: 'Yen',
+  USD: 'Dollars'
+});
 
-  // traditional currencies
-  AUD: "Australian Dollars",
-  CAD: "Canadian Dollars",
-  CNY: "Yuan",
-  EUR: "Euros",
-  GBP: "British Pounds",
-  INR: "Indian Rupees",
-  JPY: "Yen",
-  USD: "Dollars"
-};
+console.log('coinFullNames', coinFullNames);
+// console.log('coinfullnames', coinFullNames);
 
 const cryptoPrices = (request, response) => {
   const getPrice = assistant => {
@@ -58,12 +42,12 @@ const cryptoPrices = (request, response) => {
     const coinNameLongOrShort =
       assistant.getArgument(CURRENCY_NAME) ||
       assistant.getArgument(CRYPTO_COIN2) ||
-      "USD";
+      'USD';
 
     const toCoin = shortName(coinNameLongOrShort.toUpperCase());
 
     if (fromCoin === null) {
-      assistant.ask("Hi, which cryptocoin would you like the price for?");
+      assistant.tell('Sorry, that coin is unavailable.');
     } else {
       let getPriceRequest = pricePromise(fromCoin, toCoin)
         .then(getToCoinPriceFromBody(toCoin))
@@ -84,8 +68,8 @@ const cryptoPrices = (request, response) => {
       .shortName;
 
   const pricePromise = (fromCoin, toCoin) => {
-    console.log("arguments are: ", fromCoin, toCoin);
-    const baseUrl = "https://min-api.cryptocompare.com/data/";
+    console.log('arguments are: ', fromCoin, toCoin);
+    const baseUrl = 'https://min-api.cryptocompare.com/data/';
     let url = `${baseUrl}price?fsym=${fromCoin}&tsyms=${toCoin}`;
     return fetchJSON(url);
   };
@@ -94,11 +78,9 @@ const cryptoPrices = (request, response) => {
     fetch(url)
       .then(res => res.json())
       .then(body => {
-        if (body.Response === "Error") {
+        if (body.Response === 'Error') {
           throw body.Message;
         }
-
-        console.log("fetchJSON triggered");
         return body;
       });
 
@@ -112,10 +94,10 @@ const cryptoPrices = (request, response) => {
   };
 
   const generateMessageFn = (fromCoin, toCoin) => toCoinPrice => {
-    if (toCoin === "USD") {
-      return `The current price of ${coinFullNames[
-        fromCoin
-      ]} is $${toCoinPrice}.`;
+    if (toCoin === 'USD') {
+      return `The current price of ${
+        coinFullNames[fromCoin]
+      } is $${toCoinPrice}.`;
     }
 
     return `The current price of ${coinFullNames[fromCoin]} is ${toCoinPrice}
