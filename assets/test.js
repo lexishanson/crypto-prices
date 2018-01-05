@@ -1,16 +1,23 @@
 const coinObject = require('../functions/coin-object').coinObject;
 fs = require('fs');
 
-var coinEntity = {};
+// const coinArray = Object.keys(coinObject).reduce((acc, key) => {
+//   acc.push({
+//     "value": key,
+//     "synonyms": [key, coinObject[key]]
+//   });
+//   return acc;
+// }, []);
 
-const coinArray = Object.keys(coinObject).reduce((acc, key) => {
-  acc.push({
-    "value": key,
-    "synonyms": [key, coinObject[key]]
-  });
-  return acc;
-}, []);
 
+// const reducer = (coin, coinSym) => {
+//   console.log(coin, coinSym);
+//   const value = coinList[coinSym];
+//   coin[coinSym] = value.CoinName;
+//   return coin;
+// };
+//
+// const coinObj = Object.keys(coinObject).reduce(reducer, {});
 // {
 //     "value": "XVG",
 //     "synonyms": [
@@ -22,4 +29,4 @@ const coinArray = Object.keys(coinObject).reduce((acc, key) => {
 //     ]
 // }
 // {coinObject: {'BTC': Bitcoin.......ethereum rpple}......}
-fs.writeFile('./hellocoins.js', JSON.stringify(coinArray))
+fs.writeFile('./coinobject.js', JSON.stringify(coinObject))
