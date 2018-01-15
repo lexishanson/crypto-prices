@@ -1505,7 +1505,7 @@ const coinObject = {
    "REX":"REX",
    "ETHD":"Ethereum Dark",
    "SUMO":"Sumokoin",
-   "TRX":"Tronix",
+   "TRX":"Tron",
    "8S":"Elite 888",
    "TKT":"Crypto Tickets",
    "RHEA":"Rhea",
@@ -1913,11 +1913,6 @@ const coinObject = {
    "NEU*":"NeuCoin"
 };
 
-let lastTime = Date.now();
-const logTimeSinceLast = (string) => {
-  console.log('timetracking', string, Date.now() - lastTime);
-  lastTime = Date.now();
-};
 process.env.DEBUG = 'actions-on-google:*';
 
 const Assistant = require('actions-on-google').ApiAiAssistant;
@@ -1925,10 +1920,8 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
 global.fetch = require('node-fetch');
-logTimeSinceLast('after requires');
 
 admin.initializeApp(functions.config().firebase);
-logTimeSinceLast('after initializeApp');
 
 // API.AI Intent names
 const GET_PRICE_INTENT = 'get.price';
@@ -1955,7 +1948,6 @@ const coinFullNames = Object.assign(coinObject, {
 });
 
 const cryptoPrices = (request, response) => {
-  logTimeSinceLast('time to invocation');
   const getPrice = assistant => {
     const fromCoin = assistant.getArgument(CRYPTO_COIN);
     const coinNameLongOrShort =
@@ -1968,24 +1960,11 @@ const cryptoPrices = (request, response) => {
     if (fromCoin === null) {
       assistant.tell('Sorry, that coin is unavailable.');
     } else {
-      // let coinPrice = getCoinPriceFromCache(fromCoin, toCoin)
-      //   .then((cachedResponse) => {
-      //     const MAX_CACHE_AGE = 10000;
-      //     const cacheNotTooOld = cachedResponse && (cachedResponse.time - Date.now() < MAX_CACHE_AGE);
-      //     if (!cacheNotTooOld) {
-      //       return cachedResponse;
-      //     }
-      //     return getCoinPriceFromAPIAndSetCache(fromCoin, toCoin);
-      //   })
-     logTimeSinceLast('before api');
-      let getPriceRequest = pricePromise(fromCoin, toCoin)
-        .then((x) => { logTimeSinceLast('after api'); return x })
-        .then(getToCoinPriceFromBody(toCoin))
-        .then(formatToCoinPrice)
-        .then(generateMessageFn(fromCoin, toCoin))
-        .then((x) => { logTimeSinceLast('after formatting'); return x })
-        .then(respondWithMessage)
-        .then((x) => { logTimeSinceLast('after response'); return x })
+      const getPriceRequest = fetchPrice(fromCoin, toCoin) // get coin data from API
+        .then(getToCoinPriceFromBody(toCoin)) // parse price of coin from result
+        .then(formatToCoinPrice) // format coin price to shortened, readable value
+        .then(generateMessageFn(fromCoin, toCoin)) // build response message with coinFullNames
+        .then(respondWithMessage) // send response message to Google Assistant
         .catch(console.error);
     }
   };
@@ -1999,7 +1978,7 @@ const cryptoPrices = (request, response) => {
     coins.find(coin => coin.longName === name || coin.shortName === name)
       .shortName;
 
-  const pricePromise = (fromCoin, toCoin) => {
+  const fetchPrice = (fromCoin, toCoin) => {
     console.log('arguments are: ', fromCoin, toCoin);
     const baseUrl = 'https://min-api.cryptocompare.com/data/';
     let url = `${baseUrl}price?fsym=${fromCoin}&tsyms=${toCoin}`;

@@ -1,0 +1,63 @@
+[debug] [2018-01-15T03:48:05.547Z] ----------------------------------------------------------------------
+[debug] [2018-01-15T03:48:05.549Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only functions
+[debug] [2018-01-15T03:48:05.549Z] CLI Version:   3.16.0
+[debug] [2018-01-15T03:48:05.550Z] Platform:      darwin
+[debug] [2018-01-15T03:48:05.550Z] Node Version:  v6.11.2
+[debug] [2018-01-15T03:48:05.550Z] Time:          Sun Jan 14 2018 19:48:05 GMT-0800 (PST)
+[debug] [2018-01-15T03:48:05.550Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-01-15T03:48:05.564Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-01-15T03:48:05.564Z] > authorizing via signed-in user
+[debug] [2018-01-15T03:48:05.566Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2018-01-15T03:48:05.567Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ { refresh_token: '1/bca6OYci55T22548Iplgn-7LcnojEU3_hF30jYfZkt0',
+  client_id: '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com',
+  client_secret: 'j9iVZfS8kkCEFUPaAeJV0sAi',
+  grant_type: 'refresh_token',
+  scope: 'email https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/firebase openid' } 
+ Sun Jan 14 2018 19:48:05 GMT-0800 (PST)
+[debug] [2018-01-15T03:48:05.689Z] <<< HTTP RESPONSE 200
+[debug] [2018-01-15T03:48:05.704Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/animal-guesser-16025  
+  
+ Sun Jan 14 2018 19:48:05 GMT-0800 (PST)
+[debug] [2018-01-15T03:48:06.105Z] <<< HTTP RESPONSE 200
+[debug] [2018-01-15T03:48:06.106Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/animal-guesser-16025/tokens  
+  
+ Sun Jan 14 2018 19:48:06 GMT-0800 (PST)
+[debug] [2018-01-15T03:48:06.732Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Deploying to 'animal-guesser-16025'...
+[info] 
+[info] i  deploying functions
+[debug] [2018-01-15T03:48:07.092Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "dependencies": {
+    "actions-on-google": "^1.7.0",
+    "bespoken-tools": "^1.2.5",
+    "cache-require-paths": "^0.3.0",
+    "cryptocompare": "^0.1.0",
+    "firebase-admin": "^4.1.2",
+    "firebase-functions": "^0.5.9",
+    "node-fetch": "^1.7.3",
+    "uuid": "^3.1.0"
+  },
+  "private": true
+}
+[info] i  functions: ensuring necessary APIs are enabled...
+[debug] [2018-01-15T03:48:07.093Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/cloudfunctions.googleapis.com/projectSettings/animal-guesser-16025?view=CONSUMER_VIEW  
+  
+ Sun Jan 14 2018 19:48:07 GMT-0800 (PST)
+[debug] [2018-01-15T03:48:07.094Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/animal-guesser-16025?view=CONSUMER_VIEW  
+  
+ Sun Jan 14 2018 19:48:07 GMT-0800 (PST)
+[debug] [2018-01-15T03:48:07.711Z] <<< HTTP RESPONSE 200
+[debug] [2018-01-15T03:48:07.743Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: all necessary APIs are enabled
+[debug] [2018-01-15T03:48:07.744Z] >>> HTTP REQUEST GET https://appengine.googleapis.com/v1/apps/animal-guesser-16025  
+  
+ Sun Jan 14 2018 19:48:07 GMT-0800 (PST)
+[debug] [2018-01-15T03:48:07.745Z] >>> HTTP REQUEST GET https://apikeys.googleapis.com/v1/projects/animal-guesser-16025/apiKeys  
+  
+ Sun Jan 14 2018 19:48:07 GMT-0800 (PST)
+[debug] [2018-01-15T03:48:08.146Z] <<< HTTP RESPONSE 200
