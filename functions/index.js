@@ -1203,7 +1203,7 @@ const coinObject = {
    "MAT*":"Manet Coin",
    "F16":"F16Coin",
    "HAMS":"HamsterCoin",
-   "QTUM":"QTUM",
+   "QTUM":"Quantum",
    "NEF":"NefariousCoin",
    "ZEN":"ZenCash",
    "BOS":"BOScoin",
@@ -1236,7 +1236,6 @@ const coinObject = {
    "MCO":"Monaco",
    "NMR":"Numerai",
    "ADX":"AdEx",
-   "QAU":"Quantum",
    "ECOB":"EcoBit",
    "PLBT":"Polybius",
    "USDT":"Tether",
@@ -1389,6 +1388,7 @@ const coinObject = {
    "CCC":"CCCoin",
    "UMC":"Umbrella Coin",
    "BMXT":"Bitmxittz",
+   "CC": "CyberCoin",
    "GAS":"Gas",
    "FIL":"FileCoin",
    "OCL":"Oceanlab",
@@ -1947,6 +1947,10 @@ const coinFullNames = Object.assign(coinObject, {
   USD: 'Dollars'
 });
 
+const getCoinPriceFromCache = (fromCoin, toCoin) => {};
+
+const addCoinPriceToCache = () => {};
+
 const cryptoPrices = (request, response) => {
   const getPrice = assistant => {
     const fromCoin = assistant.getArgument(CRYPTO_COIN);
@@ -1960,6 +1964,15 @@ const cryptoPrices = (request, response) => {
     if (fromCoin === null) {
       assistant.tell('Sorry, that coin is unavailable.');
     } else {
+      // let coinPrice = getCoinPriceFromCache(fromCoin, toCoin)
+      //   .then((cachedResponse) => {
+      //     const MAX_CACHE_AGE = 10000;
+      //     const cacheNotTooOld = cachedResponse && (cachedResponse.time - Date.now() < MAX_CACHE_AGE);
+      //     if (!cacheNotTooOld) {
+      //       return cachedResponse;
+      //     }
+      //     return getCoinPriceFromAPIAndSetCache(fromCoin, toCoin);
+      //   })
       const getPriceRequest = fetchPrice(fromCoin, toCoin) // get coin data from API
         .then(getToCoinPriceFromBody(toCoin)) // parse price of coin from result
         .then(formatToCoinPrice) // format coin price to shortened, readable value
@@ -2005,6 +2018,13 @@ const cryptoPrices = (request, response) => {
   };
 
   const generateMessageFn = (fromCoin, toCoin) => toCoinPrice => {
+    try {
+      // functions.database.ref('/' + toCoin).set(toCoinPrice);
+      admin.database().ref('/prices').push({[`${fromCoin}${toCoin}`]: toCoinPrice});
+    }
+    catch(err) {
+        console.log('ERROR STORING', err);
+    }
     if (toCoin === 'USD') {
       return `The current price of ${
         coinFullNames[fromCoin]

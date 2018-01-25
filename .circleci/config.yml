@@ -1,0 +1,13 @@
+jobs:
+  build:
+     machine: true
+     steps:
+       - run: ../firebase deploy --token=$FIREBASE_TOKEN
+
+workflows:
+  version: 2
+  deploy_firebase:
+    jobs:
+      - build
+
+- run: cd functions && npm install
