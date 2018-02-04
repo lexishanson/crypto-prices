@@ -1,16 +1,6 @@
 'use strict';
 
-process.env.DEBUG = 'actions-on-google:*';
-
-const Assistant = require('actions-on-google').DialogflowApp;
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const Rx = require('@reactivex/rxjs');
-global.fetch = require('node-fetch');
-
-admin.initializeApp(functions.config().firebase);
-
-const API_COIN_NAMES = {
+const coinObject = {
    "42":"42 Coin",
    "365":"365Coin",
    "404":"404Coin",
@@ -1922,7 +1912,31 @@ const API_COIN_NAMES = {
    "NEU":"Neumarks",
    "NEU*":"NeuCoin"
 };
-const COIN_AND_FIAT_LONG_NAMES = Object.assign(API_COIN_NAMES, {
+
+process.env.DEBUG = 'actions-on-google:*';
+
+const Assistant = require('actions-on-google').ApiAiAssistant;
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+
+global.fetch = require('node-fetch');
+
+admin.initializeApp(functions.config().firebase);
+
+// API.AI Intent names
+const GET_PRICE_INTENT = 'get.price';
+const QUIT_INTENT = 'quit';
+
+// Contexts
+const WELCOME_CONTEXT = 'welcome';
+const GET_PRICE_CONTEXT = 'get-price';
+
+// Context Parameters
+const CRYPTO_COIN = 'crypto-coin';
+const CRYPTO_COIN2 = 'crypto-coin2';
+const CURRENCY_NAME = 'currency-name';
+
+const coinFullNames = Object.assign(coinObject, {
   AUD: 'Australian Dollars',
   CAD: 'Canadian Dollars',
   CNY: 'Yuan',
@@ -1932,122 +1946,102 @@ const COIN_AND_FIAT_LONG_NAMES = Object.assign(API_COIN_NAMES, {
   JPY: 'Yen',
   USD: 'Dollars'
 });
-const COIN_AND_FIAT_SHORT_NAMES = Object.keys(COIN_AND_FIAT_LONG_NAMES)
-  .reduce((acc, key) => {
-    acc[COIN_AND_FIAT_LONG_NAMES[key]] = key;
-    return acc;
-  }, {});
 
-// API.AI Intent names
-const GET_PRICE_INTENT = 'get.price';
+const getCoinPriceFromCache = (fromCoin, toCoin) => {};
 
-// Context Parameters
-const PRIMARY_COIN = 'crypto-coin';
-const RELATIVE_TO_COIN = 'crypto-coin2';
-const RELATIVE_TO_CURRENCY = 'currency-name';
+const addCoinPriceToCache = () => {};
 
+const cryptoPrices = (request, response) => {
+  const getPrice = assistant => {
+    const fromCoin = assistant.getArgument(CRYPTO_COIN);
+    const coinNameLongOrShort =
+      assistant.getArgument(CURRENCY_NAME) ||
+      assistant.getArgument(CRYPTO_COIN2) ||
+      'USD';
 
-/* ----- GET COIN PRICE FROM API ----- */
+    const toCoin = shortName(coinNameLongOrShort.toUpperCase());
 
-const fetchPrice = (fromCoin, toCoin) => {
-  // try {
-  //   // functions.database.ref('/' + toCoin).set(toCoinPrice);
-  //   admin.database().ref('/prices').push({[`${fromCoin}${toCoin}`]: toCoinPrice});
-  // }
-  // catch(err) {
-  //     console.log('ERROR STORING', err);
-  // }
-  console.log('arguments are: ', fromCoin, toCoin);
-  const apiBaseURL = 'https://min-api.cryptocompare.com/data/';
-  let url = `${apiBaseURL}price?fsym=${fromCoin}&tsyms=${toCoin}`;
-  return fetch(url)
-    .then(res => res.json())
-    .then(body => {
-      if (body.Response === 'Error') {
-        throw body.Message;
-      }
-      return body[toCoin];
-    });
-};
-
-/* ----- COMPOSE PRICE RESPONSE ----- */
-
-const composePriceResponseFn = (fromCoin, toCoin) => longToCoinPrice => {
-  const toCoinPrice = longToCoinPrice.toFixed(longToCoinPrice < 1 ? 4 : 2);
-  if (toCoin === 'USD') {
-    return `The current price of ${
-      COIN_AND_FIAT_LONG_NAMES[fromCoin]
-    } is $${toCoinPrice}.`;
-  }
-  return `The current price of ${COIN_AND_FIAT_LONG_NAMES[fromCoin]} is ${toCoinPrice}
-     ${COIN_AND_FIAT_LONG_NAMES[toCoin]}.`;
-};
-
-/* ----- GET INFORMATION FROM PRICE REQUEST ----- */
-
-const fromAndToCoins = (assistant) => {
-  const shortName = shortOrLongName =>
-    COIN_AND_FIAT_SHORT_NAMES[shortOrLongName] || (
-      COIN_AND_FIAT_LONG_NAMES[shortOrLongName] && shortOrLongName);
-  const fromCoin = assistant.getArgument(PRIMARY_COIN);
-  const relativeToCurrency = assistant.getArgument(RELATIVE_TO_CURRENCY);
-  const relativeToCoin = assistant.getArgument(RELATIVE_TO_COIN);
-  const toCoin = shortName((
-    relativeToCurrency
-    || relativeToCoin
-    || 'USD').toUpperCase()); // TODO check if all this parsing is necessary
-  console.log(`From Coin: ${fromCoin}`);
-  console.log(`Relative to Currency Arg: ${relativeToCurrency}`);
-  console.log(`Relative to Coin Arg: ${relativeToCoin}`);
-  console.log(`To Coin: ${toCoin}`);
-  return { fromCoin, toCoin };
-};
-
-/* ----- CONTROL A SINGLE PRICE REQUEST ----- */
-
-const getPriceResponse = (fromCoin, toCoin = 'USD') => {
-  return new Promise((resolve, reject) => {
-    if (!!fromCoin) {
-      fetchPrice(fromCoin, toCoin) // get coin data from API
-        .then(composePriceResponseFn(fromCoin, toCoin)) // build response message with COIN_AND_FIAT_LONG_NAMES
-        .then(resolve) // send response message to Google Assistant
-        .catch(console.error);
+    if (fromCoin === null) {
+      assistant.tell('Sorry, that coin is unavailable.');
     } else {
-      resolve('Sorry, that coin is unavailable.');
+      // let coinPrice = getCoinPriceFromCache(fromCoin, toCoin)
+      //   .then((cachedResponse) => {
+      //     const MAX_CACHE_AGE = 10000;
+      //     const cacheNotTooOld = cachedResponse && (cachedResponse.time - Date.now() < MAX_CACHE_AGE);
+      //     if (!cacheNotTooOld) {
+      //       return cachedResponse;
+      //     }
+      //     return getCoinPriceFromAPIAndSetCache(fromCoin, toCoin);
+      //   })
+      const getPriceRequest = fetchPrice(fromCoin, toCoin) // get coin data from API
+        .then(getToCoinPriceFromBody(toCoin)) // parse price of coin from result
+        .then(formatToCoinPrice) // format coin price to shortened, readable value
+        .then(generateMessageFn(fromCoin, toCoin)) // build response message with coinFullNames
+        .then(respondWithMessage) // send response message to Google Assistant
+        .catch(console.error);
     }
-  });
-};
+  };
 
-const getPrice = response => assistant => {
-  const fromAndTo = fromAndToCoins(assistant);
-  getPriceResponse(fromAndTo.fromCoin, fromAndTo.toCoin)
-    .then(assistant.tell)
-    .then(() => response.end('function completed'));
-};
+  const coins = Object.keys(coinFullNames).map(short => ({
+    shortName: short.toUpperCase(),
+    longName: coinFullNames[short].toUpperCase()
+  }));
 
-/* ----- DEFINE REQUESTS ACCEPTED FROM USER ----- */
+  const shortName = name =>
+    coins.find(coin => coin.longName === name || coin.shortName === name)
+      .shortName;
 
-const cryptoPrices = (request, response) => { // TODO: rename cryptoPrices to onPriceRequest
+  const fetchPrice = (fromCoin, toCoin) => {
+    console.log('arguments are: ', fromCoin, toCoin);
+    const baseUrl = 'https://min-api.cryptocompare.com/data/';
+    let url = `${baseUrl}price?fsym=${fromCoin}&tsyms=${toCoin}`;
+    return fetchJSON(url);
+  };
+
+  const fetchJSON = url =>
+    fetch(url)
+      .then(res => res.json())
+      .then(body => {
+        if (body.Response === 'Error') {
+          throw body.Message;
+        }
+        return body;
+      });
+
+  const getToCoinPriceFromBody = toCoin => body => body[toCoin];
+
+  const formatToCoinPrice = toCoinPrice => {
+    if (toCoinPrice < 1) {
+      return toCoinPrice.toFixed(4);
+    }
+    return toCoinPrice.toFixed(2);
+  };
+
+  const generateMessageFn = (fromCoin, toCoin) => toCoinPrice => {
+    try {
+      // functions.database.ref('/' + toCoin).set(toCoinPrice);
+      admin.database().ref('/prices').push({[`${fromCoin}${toCoin}`]: toCoinPrice});
+    }
+    catch(err) {
+        console.log('ERROR STORING', err);
+    }
+    if (toCoin === 'USD') {
+      return `The current price of ${
+        coinFullNames[fromCoin]
+      } is $${toCoinPrice}.`;
+    }
+
+    return `The current price of ${coinFullNames[fromCoin]} is ${toCoinPrice}
+       ${coinFullNames[toCoin]}.`;
+  };
+
+  const respondWithMessage = message => assistant.tell(message);
+
   const assistant = new Assistant({ request: request, response: response });
+
   let actionMap = new Map();
-  actionMap.set(GET_PRICE_INTENT, getPrice(response));
-  // TODO: add WELCOME_INTENT to actionMap
+  actionMap.set(GET_PRICE_INTENT, getPrice);
   assistant.handleRequest(actionMap);
 };
-
-const runTest = (fromCoin, toCoin) => {
-  return getPriceResponse(fromCoin, toCoin)
-    .then((response) => `TEST ${fromCoin} -> ${toCoin}: ${response}`);
-};
-
-exports.testGetPriceResponse = functions.https.onRequest((req, res) => {
-  Promise.all([
-    runTest('BTC', 'USD'),
-    runTest('LTC'),
-    runTest('ETH', 'USD'),
-    runTest()
-  ])
-  .then((tests) => console.log(tests.join('\n')))
-});
 
 exports.cryptoCurrencyPrices = functions.https.onRequest(cryptoPrices);

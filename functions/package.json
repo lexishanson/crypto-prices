@@ -2,15 +2,13 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "dependencies": {
-    "@reactivex/rxjs": "^5.0.0",
     "actions-on-google": "^1.7.0",
     "bespoken-tools": "^1.2.5",
     "cache-require-paths": "^0.3.0",
     "cryptocompare": "^0.1.0",
-    "firebase-admin": "~5.8.1",
+    "firebase-admin": "^4.1.2",
     "firebase-functions": "^0.8.1",
     "node-fetch": "^1.7.3",
-    "rxjs": "^5.5.6",
     "uuid": "^3.1.0"
   },
   "private": true
