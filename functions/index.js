@@ -5,7 +5,6 @@ process.env.DEBUG = 'actions-on-google:*';
 const Assistant = require('actions-on-google').DialogflowApp;
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const Rx = require('@reactivex/rxjs');
 global.fetch = require('node-fetch');
 
 admin.initializeApp(functions.config().firebase);

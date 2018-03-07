@@ -1,0 +1,53 @@
+[debug] [2018-03-07T06:06:18.250Z] ----------------------------------------------------------------------
+[debug] [2018-03-07T06:06:18.251Z] Command:       /Users/lhanson/.nvm/versions/node/v9.5.0/bin/node /usr/local/bin/firebase deploy --only functions
+[debug] [2018-03-07T06:06:18.252Z] CLI Version:   3.17.4
+[debug] [2018-03-07T06:06:18.252Z] Platform:      darwin
+[debug] [2018-03-07T06:06:18.252Z] Node Version:  v9.5.0
+[debug] [2018-03-07T06:06:18.253Z] Time:          Tue Mar 06 2018 22:06:18 GMT-0800 (PST)
+[debug] [2018-03-07T06:06:18.253Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-03-07T06:06:18.266Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-03-07T06:06:18.266Z] > authorizing via signed-in user
+[debug] [2018-03-07T06:06:18.268Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/animal-guesser-16025  
+  
+ Tue Mar 06 2018 22:06:18 GMT-0800 (PST)
+[debug] [2018-03-07T06:06:18.642Z] <<< HTTP RESPONSE 200
+[debug] [2018-03-07T06:06:18.643Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/animal-guesser-16025/tokens  
+  
+ Tue Mar 06 2018 22:06:18 GMT-0800 (PST)
+[debug] [2018-03-07T06:06:19.135Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Deploying to 'animal-guesser-16025'...
+[info] 
+[info] i  deploying functions
+[debug] [2018-03-07T06:06:19.421Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "dependencies": {
+    "actions-on-google": "^1.7.0",
+    "bespoken-tools": "^1.2.5",
+    "cache-require-paths": "^0.3.0",
+    "cryptocompare": "^0.1.0",
+    "firebase-admin": "^4.1.2",
+    "firebase-functions": "^0.8.1",
+    "node-fetch": "^1.7.3",
+    "uuid": "^3.1.0"
+  },
+  "private": true
+}
+[info] i  functions: ensuring necessary APIs are enabled...
+[debug] [2018-03-07T06:06:19.422Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/cloudfunctions.googleapis.com/projectSettings/animal-guesser-16025?view=CONSUMER_VIEW  
+  
+ Tue Mar 06 2018 22:06:19 GMT-0800 (PST)
+[debug] [2018-03-07T06:06:19.423Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/animal-guesser-16025?view=CONSUMER_VIEW  
+  
+ Tue Mar 06 2018 22:06:19 GMT-0800 (PST)
+[debug] [2018-03-07T06:06:20.008Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: all necessary APIs are enabled
+[debug] [2018-03-07T06:06:20.013Z] <<< HTTP RESPONSE 200
+[debug] [2018-03-07T06:06:20.014Z] >>> HTTP REQUEST GET https://appengine.googleapis.com/v1/apps/animal-guesser-16025  
+  
+ Tue Mar 06 2018 22:06:20 GMT-0800 (PST)
+[debug] [2018-03-07T06:06:20.014Z] >>> HTTP REQUEST GET https://apikeys.googleapis.com/v1/projects/animal-guesser-16025/apiKeys  
+  
+ Tue Mar 06 2018 22:06:20 GMT-0800 (PST)
