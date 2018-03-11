@@ -1962,17 +1962,8 @@ const cryptoPrices = (request, response) => {
     const toCoin = shortName(coinNameLongOrShort.toUpperCase());
 
     if (fromCoin === null) {
-      assistant.tell('Sorry, that coin is unavailable.');
+      assistant.ask('Hi, which cryptocurrency would you like the price for?');
     } else {
-      // let coinPrice = getCoinPriceFromCache(fromCoin, toCoin)
-      //   .then((cachedResponse) => {
-      //     const MAX_CACHE_AGE = 10000;
-      //     const cacheNotTooOld = cachedResponse && (cachedResponse.time - Date.now() < MAX_CACHE_AGE);
-      //     if (!cacheNotTooOld) {
-      //       return cachedResponse;
-      //     }
-      //     return getCoinPriceFromAPIAndSetCache(fromCoin, toCoin);
-      //   })
       const getPriceRequest = fetchPrice(fromCoin, toCoin) // get coin data from API
         .then(getToCoinPriceFromBody(toCoin)) // parse price of coin from result
         .then(formatToCoinPrice) // format coin price to shortened, readable value
