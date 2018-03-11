@@ -41,13 +41,6 @@ const RELATIVE_TO_CURRENCY = 'currency-name';
 /* ----- GET COIN PRICE FROM API ----- */
 
 const fetchPrice = (fromCoin, toCoin) => {
-  // try {
-  //   // functions.database.ref('/' + toCoin).set(toCoinPrice);
-  //   admin.database().ref('/prices').push({[`${fromCoin}${toCoin}`]: toCoinPrice});
-  // }
-  // catch(err) {
-  //     console.log('ERROR STORING', err);
-  // }
   console.log('arguments are: ', fromCoin, toCoin);
   const apiBaseURL = 'https://min-api.cryptocompare.com/data/';
   let url = `${apiBaseURL}price?fsym=${fromCoin}&tsyms=${toCoin}`;
@@ -87,11 +80,8 @@ const fromAndToCoins = assistant => {
   const relativeToCoin = assistant.getArgument(RELATIVE_TO_COIN);
   const toCoin = shortName(
     (relativeToCurrency || relativeToCoin || 'USD').toUpperCase()
-  ); // TODO check if all this parsing is necessary
-  console.log(`From Coin: ${fromCoin}`);
-  console.log(`Relative to Currency Arg: ${relativeToCurrency}`);
-  console.log(`Relative to Coin Arg: ${relativeToCoin}`);
-  console.log(`To Coin: ${toCoin}`);
+  );
+  // TODO check if we can reduce parsing
   return { fromCoin, toCoin };
 };
 
@@ -125,7 +115,6 @@ const cryptoPrices = (request, response) => {
   const assistant = new Assistant({ request: request, response: response });
   let actionMap = new Map();
   actionMap.set(GET_PRICE_INTENT, getPrice);
-  // TODO: add WELCOME_INTENT to actionMap
   assistant.handleRequest(actionMap);
 };
 
@@ -143,7 +132,5 @@ exports.testGetPriceResponse = functions.https.onRequest((req, res) => {
     runTest()
   ]).then(tests => res.send(console.log(tests.join('\n'))));
 });
-
-exports.testConsoleLog = console.log('test');
 
 exports.cryptoCurrencyPrices = functions.https.onRequest(cryptoPrices);
