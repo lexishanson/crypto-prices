@@ -17,10 +17,6 @@ const API_COIN_NAMES = require('./ApiCoinNames');
 const GET_PRICE_INTENT = 'get.price';
 const QUIT_INTENT = 'quit';
 
-// Contexts
-const WELCOME_CONTEXT = 'welcome';
-const GET_PRICE_CONTEXT = 'get-price';
-
 // Context Parameters
 const CRYPTO_COIN = 'crypto-coin';
 const CRYPTO_COIN2 = 'crypto-coin2';
@@ -37,10 +33,6 @@ const coinFullNames = Object.assign(API_COIN_NAMES, {
   USD: 'Dollars'
 });
 
-const getCoinPriceFromCache = (fromCoin, toCoin) => {};
-
-const addCoinPriceToCache = () => {};
-
 const cryptoPrices = (request, response) => {
   const getPrice = assistant => {
     const fromCoin = assistant.getArgument(CRYPTO_COIN);
@@ -54,8 +46,7 @@ const cryptoPrices = (request, response) => {
     if (fromCoin === null) {
       assistant.ask('Hi, which cryptocurrency would you like the price for?');
     } else {
-      const getPriceRequest = fetchPrice(fromCoin, toCoin) // get coin data from API
-        .then(getToCoinPriceFromBody(toCoin)) // parse price of coin from result
+      const getPrice = fetchPrice(fromCoin, toCoin) // get coin data from API
         .then(formatToCoinPrice) // format coin price to shortened, readable value
         .then(generateMessageFn(fromCoin, toCoin)) // build response message with coinFullNames
         .then(respondWithMessage) // send response message to Google Assistant
@@ -75,21 +66,19 @@ const cryptoPrices = (request, response) => {
   const fetchPrice = (fromCoin, toCoin) => {
     console.log('arguments are: ', fromCoin, toCoin);
     const baseUrl = 'https://min-api.cryptocompare.com/data/';
-    let url = `${baseUrl}price?fsym=${fromCoin}&tsyms=${toCoin}`;
-    return fetchJSON(url);
+    let requestUrl = `${baseUrl}price?fsym=${fromCoin}&tsyms=${toCoin}`;
+    return priceRequest(requestUrl, toCoin);
   };
 
-  const fetchJSON = url =>
+  const priceRequest = (url, coin) =>
     fetch(url)
       .then(res => res.json())
       .then(body => {
         if (body.Response === 'Error') {
           throw body.Message;
         }
-        return body;
+        return body[coin];
       });
-
-  const getToCoinPriceFromBody = toCoin => body => body[toCoin];
 
   const formatToCoinPrice = toCoinPrice => {
     if (toCoinPrice < 1) {
