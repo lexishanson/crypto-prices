@@ -1,0 +1,4 @@
+1) paste content of raw JSON from Dialogflow coin entities into `dialogFlowEntities.js`
+2) node addCoinsToEntity.js
+3 update API Coin Names
+4) pase output of addCoinsToEntity (which will be a new file called combinedNewCoins.js) into content of raw JSON in Dialogflow (overriding existing JSON)

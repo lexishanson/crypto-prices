@@ -1,5 +1,6 @@
-const coinObject = require('../functions/coin-object').coinObject;
-fs = require('fs');
+const coinObject = require("./coin-object");
+fs = require("fs");
+var util = require("util");
 
 // const coinArray = Object.keys(coinObject).reduce((acc, key) => {
 //   acc.push({
@@ -8,7 +9,6 @@ fs = require('fs');
 //   });
 //   return acc;
 // }, []);
-
 
 // const reducer = (coin, coinSym) => {
 //   console.log(coin, coinSym);
@@ -29,4 +29,5 @@ fs = require('fs');
 //     ]
 // }
 // {coinObject: {'BTC': Bitcoin.......ethereum rpple}......}
-fs.writeFile('./coinobject.js', JSON.stringify(coinObject))
+console.log("coinObject", coinObject);
+fs.writeFile("./coinobject.js", JSON.stringify(coinObject), "utf-8");

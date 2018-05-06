@@ -1,7 +1,7 @@
-const coinList = require('./coin-list.json');
+const coinList = require("./coin-list.json");
 
 const reducer = (coin, coinSym) => {
-  console.log(coin, coinSym);
+  // console.log(coin, coinSym);
   const value = coinList[coinSym];
   coin[coinSym] = value.CoinName;
   return coin;
@@ -9,4 +9,4 @@ const reducer = (coin, coinSym) => {
 
 const coinObject = Object.keys(coinList).reduce(reducer, {});
 
-module.exports.coinObject = coinObject;
+module.exports = coinObject;
